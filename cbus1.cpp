@@ -1,16 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 int customer,chair;
-int dis[30][30];
-int route[30];
+int A[30][30];
 bool visited[30];
+int route[30];
+int minspace=INT_MAX;
 int fee=0;
-int ans=INT_MAX;
-int minfeetravel=INT_MAX;
+int min_fee=INT_MAX;
 int load=0;
 bool check(int k)
 {
-    if(visited[k]==true) return false;
+    if(visited[k]==true) return true;
     if(k>customer)
     {
         if(visited[k-customer]==false) return false;
@@ -21,43 +21,31 @@ bool check(int k)
     }
     return true;
 }
-
 void updatebest()
 {
-    if(fee+dis[route[2*customer]][0]<ans) ans=fee+dis[route[2*customer]][0];
+    if(fee+A[route[2*customer]][0]<min_fee) min_fee=fee+A[route[2*customer]][0];
 }
-
 void Try(int k)
 {
-    for(int v=1;v<=2*customer;v++)
+    for(int i=1;i<=2*customer;i++)
     {
-        if(check(v))
+        if(check(i))
         {
-            route[k]=v;
-            visited[v]=true;
-            fee+=dis[route[k-1]][v];
-            if(v>customer) load--; else load++;
-            if (k==2*customer)
-            {
-                updatebest();
-            }
+            route[k]=i;
+            visited[i]=true;
+            fee+=A[route[k-1]][i];
+            if(k>customer) load--; else load++;
+            if(k==2*customer) updatebest();
             else
             {
-                if(fee+(2*customer-k+1)*minfeetravel>ans) return;
-                else
-                {
-                    Try(k+1);
-                }
+                if(fee+minspace*(customer-k+1)<min_fee) Try(k+1);
             }
-            visited[v]=false;
-            fee-=dis[route[k-1]][v];
-            if(v>customer) load++; else load--;
+            visited[i]=false;
+            fee-=A[route[k-1]][i];
+            if(k>customer) load++; else load--;
         }
     }
 }
-
-
-
 int main()
 {
     cin>>customer>>chair;
@@ -65,11 +53,11 @@ int main()
     {
         for(int j=0;j<=2*customer;j++)
         {
-            cin>>dis[i][j];
-            minfeetravel=min(minfeetravel,dis[i][j]);
+            cin>>A[i][j];
+            minspace=min(minspace,A[i][j]);
         }
     }
-    route[0]=0; visited[0]=true;
+    route[0]=0; visited[0]=1;
     Try(1);
-    cout<<ans<<endl;
+    cout<<min_fee;
 }
